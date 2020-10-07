@@ -1,0 +1,10 @@
+:set -Wall
+
+:set -Wno-missing-signatures
+:set -Wno-missing-export-lists
+:set -Wno-name-shadowing
+:set -Wno-partial-type-signatures
+:set -Wno-unused-imports
+:set -Wno-unused-top-binds
+
+:seti -Wno-type-defaults
