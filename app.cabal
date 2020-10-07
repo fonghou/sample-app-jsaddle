@@ -6,12 +6,16 @@ category:            Web
 build-type:          Simple
 
 executable app
-  main-is:
-    Main.hs
+  main-is: Main.hs
+  hs-source-dirs: client
   build-depends:
-    base, miso, lens, generic-lens
+    base, miso, lens, generic-lens, servant
+  if impl(ghcjs)
+    -- build-depends: servant-client-ghcjs
+    ghcjs-options:    -dedupe
+
   if !impl(ghcjs)
     build-depends:
-       jsaddle, jsaddle-warp, transformers, warp, websockets
-  default-language:
-     Haskell2010
+     jsaddle, jsaddle-warp, transformers,
+     warp, websockets, servant-client
+  default-language: Haskell2010

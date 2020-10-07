@@ -51,10 +51,13 @@ let
     }
   );
 
-  miso-jsaddle = pkgs.haskell.packages.ghc865.miso-jsaddle;
 in
 {
-  dev = pkgs.haskell.packages.ghc865.callCabal2nix "app" ./. { miso = miso-jsaddle; };
-  release = pkgs.haskell.packages.ghcjs86.callCabal2nix "app" ./. {};
+  dev = pkgs.haskell.packages.ghc865.callCabal2nix "app" ./. {
+    miso = pkgs.haskell.packages.ghc865.miso-jsaddle;
+  };
+  release = pkgs.haskell.packages.ghcjs86.callCabal2nix "app" ./. {
+    # servant-client-ghcjs = haskellPackages.servant-client-ghcjs;
+  };
   inherit pkgs;
 }

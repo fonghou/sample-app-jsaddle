@@ -18,11 +18,18 @@ import qualified Network.Wai.Handler.Warp         as Warp
 import           Network.WebSockets
 #endif
 
+#ifndef __GHCJS__
+import Servant.Client
+#else
+-- import Servant.Client.Ghcjs
+#endif
+
 import Control.Lens
 import Data.Generics.Product
 import GHC.Generics
 import Miso
 import Miso.String
+import Servant.API
 
 -- Type synonym for an application model
 -- type Model = Int
@@ -43,7 +50,7 @@ counter = field' @"_counter"
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
 runApp f =
-  Warp.runSettings (Warp.setPort 8080 (Warp.setTimeout 3600 Warp.defaultSettings)) =<<
+  Warp.runSettings (Warp.setPort 9090 (Warp.setTimeout 3600 Warp.defaultSettings)) =<<
     JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) JSaddle.jsaddleApp
 #else
 runApp :: IO () -> IO ()
@@ -69,7 +76,7 @@ updateModel AddOne = counter += 1
 updateModel SubtractOne = counter -= 1
 updateModel NoOp = pure ()
 updateModel SayHelloWorld =
-  scheduleIO_ (consoleLog "Hello World")
+  scheduleIO_ (consoleLog "Hello World!")
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
@@ -77,6 +84,6 @@ viewModel x =
   div_
     []
     [ button_ [onClick AddOne] [text "+"],
-      text (ms $ x ^. counter),
+      text (ms $ _counter x),
       button_ [onClick SubtractOne] [text "-"]
     ]
