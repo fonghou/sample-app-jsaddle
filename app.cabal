@@ -9,11 +9,10 @@ executable app
   main-is: Main.hs
   hs-source-dirs: client
   build-depends:
-    base, miso, lens, generic-lens, servant
+    base, miso, lens, generic-lens, servant, servant-client-core
   if impl(ghcjs)
-    -- build-depends: servant-client-ghcjs
+    build-depends: servant-client-ghcjs
     ghcjs-options:    -dedupe
-
   if !impl(ghcjs)
     build-depends:
      jsaddle, jsaddle-warp, transformers,

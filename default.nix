@@ -6,8 +6,8 @@ let
   pkgs = (
     import (
       builtins.fetchTarball {
-        url = "https://github.com/dmjio/miso/archive/bb230192164f0532660aadb4175460740abfa2a2.tar.gz";
-        sha256 = "0q44lxzz8pp89ccaiw3iwczha8x2rxjwmgzkxj8cxm97ymsm0diy";
+        url = "https://github.com/dmjio/miso/archive/ea25964565074e73d4052b56b60b6e101fa08bc5.tar.gz";
+        sha256 = "1yb9yvc0ln4yn1jk2k5kwwa1s32310abawz40yd8cqqkm1z7w6wg";
       }
     ) {}
   ).pkgs;
@@ -27,6 +27,9 @@ let
       # Override/extend the base package set.
       overrides = pkgs.lib.composeExtensions (oldArgs.overrides or (_: _: {})) (
         hself: hsuper: {
+          miso = pkgs.haskell.lib.dontCheck (
+            hself.callHackage "miso" "1.7.1.0" {}
+          );
           servant = pkgs.haskell.lib.dontCheck (
             hself.callHackage "servant" "0.16" {}
           );
@@ -50,14 +53,5 @@ let
       );
     }
   );
-
 in
-{
-  dev = pkgs.haskell.packages.ghc865.callCabal2nix "app" ./. {
-    miso = pkgs.haskell.packages.ghc865.miso-jsaddle;
-  };
-  release = pkgs.haskell.packages.ghcjs86.callCabal2nix "app" ./. {
-    # servant-client-ghcjs = haskellPackages.servant-client-ghcjs;
-  };
-  inherit pkgs;
-}
+haskellPackages.callCabal2nix "app" ./. { servant-client-ghcjs = haskellPackages.servant-client-ghcjs; }

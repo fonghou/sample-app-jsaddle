@@ -1,5 +1,6 @@
-resolver: lts-16.16
+resolver: lts-14.27
 extra-deps:
+  - miso-1.7.1.0
   - jsaddle-0.9.7.1
   - jsaddle-warp-0.9.7.1
   - ref-tf-0.4.0.2

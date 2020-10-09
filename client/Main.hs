@@ -1,13 +1,10 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Main where
 
@@ -21,7 +18,7 @@ import           Network.WebSockets
 #ifndef __GHCJS__
 import Servant.Client
 #else
--- import Servant.Client.Ghcjs
+import Servant.Client.Ghcjs
 #endif
 
 import Control.Lens
