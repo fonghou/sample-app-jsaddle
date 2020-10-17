@@ -4,6 +4,8 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Main where
@@ -21,28 +23,79 @@ import Servant.Client
 import Servant.Client.Ghcjs
 #endif
 
+import qualified Button
 import Control.Lens
-import Data.Generics.Product
-import GHC.Generics
 import Miso
 import Miso.String
-import Servant.API
 
--- Type synonym for an application model
--- type Model = Int
-data Model = Model {_counter :: Int}
-  deriving (Show, Eq, Generic)
+data Model = Model
+  { _mLeftButton :: Button.Model,
+    _mValue :: Int,
+    _mRightButton :: Button.Model
+  }
+  deriving (Eq)
 
---  Sum type for application events
+makeLenses ''Model
+
 data Action
-  = AddOne
+  = LeftButtonAction Button.Action
+  | RightButtonAction Button.Action
   | SubtractOne
+  | AddOne
+  | ManyClicksWarning !Int
   | NoOp
-  | SayHelloWorld
   deriving (Show, Eq)
 
-counter :: Lens' Model Int
-counter = field' @"_counter"
+initialModel :: Model
+initialModel =
+  Model
+    { _mLeftButton = Button.initialModel "-",
+      _mValue = 0,
+      _mRightButton = Button.initialModel "+"
+    }
+
+updateModel :: Action -> Transition Action Model ()
+updateModel action = case action of
+  LeftButtonAction act -> do
+    -- Update the component's model, with whatever side effects it may have
+    zoom mLeftButton $ Button.updateModel iLeftButton act
+  RightButtonAction act -> do
+    zoom mRightButton $ Button.updateModel iRightButton act
+  SubtractOne -> do
+    mValue -= 1
+  AddOne -> do
+    mValue += 1
+  ManyClicksWarning i -> Miso.scheduleIO_ $ do
+    Miso.consoleLog "Ouch! You're clicking too many times!"
+    Miso.consoleLog (toMisoString i <> " is way too much for me to handle!")
+  NoOp -> pure ()
+
+-- Call the component's `viewModel` where you want it to be drawn
+viewModel :: Model -> View Action
+viewModel m =
+  div_
+    []
+    [ Button.viewModel iLeftButton $ m ^. mLeftButton,
+      text $ m ^. mValue . to show . to toMisoString,
+      Button.viewModel iRightButton $ m ^. mRightButton
+    ]
+
+-- Filling in the Interface values for both buttons
+iLeftButton :: Button.Interface Action
+iLeftButton =
+  Button.Interface
+    { Button.passAction = LeftButtonAction,
+      Button.click = SubtractOne,
+      Button.manyClicks = ManyClicksWarning
+    }
+
+iRightButton :: Button.Interface Action
+iRightButton =
+  Button.Interface
+    { Button.passAction = RightButtonAction,
+      Button.click = AddOne,
+      Button.manyClicks = ManyClicksWarning
+    }
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
@@ -58,29 +111,11 @@ runApp app = app
 main :: IO ()
 main = runApp $ startApp App {..}
   where
-    initialAction = SayHelloWorld -- initial action to be executed on application load
-    model = Model 0 -- initial model
+    initialAction = NoOp
+    model = initialModel
     update = fromTransition . updateModel -- update function
     view = viewModel -- view function
     events = defaultEvents -- default delegated events
     subs = [] -- empty subscription list
     mountPoint = Nothing -- mount point for application (Nothing defaults to 'body')
     logLevel = error "logLeval Off" -- used during prerendering to see if the VDOM and DOM are in synch (only used with `miso` function)
-
--- | Updates model, optionally introduces side effects
-updateModel :: Action -> Transition Action Model ()
-updateModel AddOne = counter += 1
-updateModel SubtractOne = counter -= 1
-updateModel NoOp = pure ()
-updateModel SayHelloWorld =
-  scheduleIO_ (consoleLog "Hello World!")
-
--- | Constructs a virtual DOM from a model
-viewModel :: Model -> View Action
-viewModel x =
-  div_
-    []
-    [ button_ [onClick AddOne] [text "+"],
-      text (ms $ _counter x),
-      button_ [onClick SubtractOne] [text "-"]
-    ]
