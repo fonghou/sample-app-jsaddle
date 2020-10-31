@@ -6,14 +6,16 @@ category:            Web
 build-type:          Simple
 
 executable app
-  main-is:          Main.hs
-  other-modules:    Button
   hs-source-dirs:   client
+  main-is:          Main.hs
+  other-modules:
+    Button
   build-depends:
     base, miso, lens, generic-lens, servant, servant-client-core
   if impl(ghcjs)
     build-depends: servant-client-ghcjs
     ghcjs-options: -dedupe
+    cpp-options:   -DGHCJS_BROWSER
   if !impl(ghcjs)
     build-depends:
      jsaddle, jsaddle-warp, transformers,

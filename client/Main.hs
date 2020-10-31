@@ -59,8 +59,10 @@ updateModel action = case action of
   LeftButtonAction act -> do
     -- Update the component's model, with whatever side effects it may have
     zoom mLeftButton $ Button.updateModel iLeftButton act
+    pure ()
   RightButtonAction act -> do
     zoom mRightButton $ Button.updateModel iRightButton act
+    pure ()
   SubtractOne -> do
     mValue -= 1
   AddOne -> do
@@ -84,7 +86,7 @@ viewModel m =
 iLeftButton :: Button.Interface Action
 iLeftButton =
   Button.Interface
-    { Button.passAction = LeftButtonAction,
+    { Button.dispatch = LeftButtonAction,
       Button.click = SubtractOne,
       Button.manyClicks = ManyClicksWarning
     }
@@ -92,7 +94,7 @@ iLeftButton =
 iRightButton :: Button.Interface Action
 iRightButton =
   Button.Interface
-    { Button.passAction = RightButtonAction,
+    { Button.dispatch = RightButtonAction,
       Button.click = AddOne,
       Button.manyClicks = ManyClicksWarning
     }
