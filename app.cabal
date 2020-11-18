@@ -11,7 +11,8 @@ executable app
   other-modules:
     Button
   build-depends:
-    base, miso, lens, generic-lens, servant, servant-client-core
+    base, miso, aeson, lens, generic-lens,
+    servant, servant-client-core
   if impl(ghcjs)
     build-depends: servant-client-ghcjs
     ghcjs-options: -dedupe

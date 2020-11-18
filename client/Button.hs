@@ -15,14 +15,13 @@ where
 import Control.Lens (makeLenses, use, (+=), (.=), (^.))
 import Control.Monad (when)
 import Data.Monoid ((<>))
-import qualified Miso
-import Miso.Html
-import qualified Miso.String as Miso
+import Miso
+import Miso.String
 
 -- Internal state
 data Model = Model
   { _mDownState :: !Bool,
-    _mText :: !Miso.MisoString,
+    _mText :: !MisoString,
     _mEnterCount :: !Int
   }
   deriving (Eq, Show)
@@ -32,7 +31,7 @@ makeLenses ''Model
 
 -- Demand a button text from above,
 -- use defaults for the rest
-initialModel :: Miso.MisoString -> Model
+initialModel :: MisoString -> Model
 initialModel txt =
   Model
     { _mDownState = False,
@@ -59,7 +58,7 @@ data Action
 -- This `action` will be filled in to become the parent's `Action`
 -- Also note that this is the Transition monad, rather than the Effect monad
 -- See the documentation for the Transition monad in miso's Haddock.
-updateModel :: Interface action -> Action -> Miso.Transition action Model ()
+updateModel :: Interface action -> Action -> Transition action Model ()
 updateModel iface action = case action of
   MouseDown -> do
     mDownState .= True
@@ -71,7 +70,7 @@ updateModel iface action = case action of
     mDownState .= False
 
 -- Same pattern as the `update` function
-viewModel :: Interface action -> Model -> Miso.View action
+viewModel :: Interface action -> Model -> View action
 viewModel iface m =
   button_
     [ onClick $ click iface,

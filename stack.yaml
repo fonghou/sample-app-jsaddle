@@ -1,6 +1,8 @@
 resolver: lts-14.27
 extra-deps:
   - miso-1.7.1.0
+  # - git: https://github.com/dmjio/miso.git
+  # commit: d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36
   - jsaddle-0.9.7.1
   - jsaddle-warp-0.9.7.1
   - ref-tf-0.4.0.2

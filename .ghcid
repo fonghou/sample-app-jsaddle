@@ -1,1 +1,1 @@
---command="stack repl" -W -T :main
+--command="stack repl" -W -T :main --allow-eval
