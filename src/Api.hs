@@ -13,6 +13,11 @@
 
 module Api where
 
+#ifndef __GHCJS__
+import qualified Servant.Client as Test
+import Network.HTTP.Client (newManager, defaultManagerSettings)
+#endif
+
 import Miso
 import Control.Monad.Catch
 import Control.Lens
@@ -45,3 +50,18 @@ url = BaseUrl Http "localhost" 3000 ""
 
 runClient :: ClientM a -> JSM (Either ClientError a)
 runClient route = runClientM route $ mkClientEnv url
+
+#ifndef __GHCJS__
+
+-- $> _get apiClientIO "actor"
+--
+
+apiClientIO :: Api (AsClientT IO)
+apiClientIO = genericClientHoist $ \m -> runClientIO m >>= either throwM return
+
+runClientIO :: Test.ClientM a -> IO (Either ClientError a)
+runClientIO route = do
+  manager <- newManager defaultManagerSettings
+  Test.runClientM route $ Test.mkClientEnv manager url
+
+#endif
