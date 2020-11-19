@@ -1,10 +1,15 @@
 resolver: lts-14.27
 extra-deps:
-  - miso-1.7.1.0
-  # - git: https://github.com/dmjio/miso.git
-  # commit: d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36
+  # miso-1.7.1.0
+  - git: https://github.com/dmjio/miso.git
+    commit: d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36
+  - git: https://github.com/FongHou/servant-jsaddle.git
+    commit: 2a45a6c9729328b8ccd330c902cc94aeda5af1d9
   - jsaddle-0.9.7.1
+  - jsaddle-dom-0.9.4.1
   - jsaddle-warp-0.9.7.1
+  - ghcjs-dom-0.9.4.0
+  - ghcjs-dom-jsaddle-0.9.4.0
   - ref-tf-0.4.0.2
 
 flags:

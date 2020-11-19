@@ -6,19 +6,20 @@ category:            Web
 build-type:          Simple
 
 executable app
-  hs-source-dirs:   client
+  hs-source-dirs:   src
   main-is:          Main.hs
   other-modules:
+    Api
     Button
   build-depends:
     base, miso, aeson, lens, generic-lens,
-    servant, servant-client-core
+    servant, servant-client-core, servant-jsaddle
   if impl(ghcjs)
-    build-depends: servant-client-ghcjs
+    build-depends: ghcjs-base, servant-client-ghcjs
     ghcjs-options: -dedupe
     cpp-options:   -DGHCJS_BROWSER
   if !impl(ghcjs)
     build-depends:
-     jsaddle, jsaddle-warp, transformers,
+     jsaddle, jsaddle-warp, http-client,
      warp, websockets, servant-client
   default-language: Haskell2010

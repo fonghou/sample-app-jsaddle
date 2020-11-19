@@ -49,9 +49,25 @@ let
               pkgs.haskell.lib.doJailbreak (
                 hself.callCabal2nix "servant-client-ghcjs" src {}
               );
+          servant-jsaddle =
+            let
+              src =
+                pkgs.fetchFromGitHub {
+                  owner = "haskell-servant";
+                  repo = "servant-jsaddle";
+                  rev = "2ccf13d185e26d4cb4a51622e748ec64336435f4";
+                  sha256 = "066vr1rfq6bjn3xx9g52z2vgp1ibyz50z3hzwaqq3fzxnr2srpjs";
+                };
+            in
+              pkgs.haskell.lib.doJailbreak (
+                hself.callCabal2nix "servant-jsaddle" src {}
+              );
         }
       );
     }
   );
 in
-haskellPackages.callCabal2nix "app" ./. { servant-client-ghcjs = haskellPackages.servant-client-ghcjs; }
+  haskellPackages.callCabal2nix "app" ./. {
+    servant-client-ghcjs = haskellPackages.servant-client-ghcjs;
+    servant-jsaddle = haskellPackages.servant-jsaddle;
+  }

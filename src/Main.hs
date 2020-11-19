@@ -1,7 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -15,28 +17,25 @@ module Main where
 
 #ifndef __GHCJS__
 import Language.Javascript.JSaddle.Warp as JSaddle ( run )
-#endif
-
-#ifndef __GHCJS__
-import Servant.Client
 #else
-import Servant.Client.Ghcjs
+import JavaScript.Web.XMLHttpRequest
 #endif
 
+import Api
 import qualified Button
 import Control.Lens
 import Data.Aeson
-import Data.Either (fromRight)
+import Data.Either
 import Data.Proxy
 import GHC.Generics (Generic)
 import Miso
 import Miso.String as S
 import Servant.API
 import Servant.Links
-import Data.Bool
 
 newtype Message = Message MisoString
-  deriving (Eq, Show, Generic)
+  deriving newtype (Eq, Show)
+  deriving (Generic)
 
 instance ToJSON Message
 
@@ -46,26 +45,26 @@ data Model = Model
   { _uri :: !URI,
     _msg :: !Message,
     _received :: !MisoString,
-    _mLeftButton :: !Button.Model,
-    _mValue :: !Int,
-    _mRightButton :: !Button.Model
+    _leftButton :: !Button.Model,
+    _value :: !Int,
+    _rightButton :: !Button.Model
   }
   deriving (Eq, Show)
 
 makeLenses ''Model
 
 data Action
-  = NoOp
-  | Router RouteMsg
+  = Router RouteAction
   | WSMsg WSMsg
   | LeftButtonAction Button.Action
   | RightButtonAction Button.Action
   | AddOne
   | SubtractOne
   | ManyClicksWarning !Int
+  | NoOp
   deriving (Show, Eq)
 
-data RouteMsg
+data RouteAction
   = ChangeURI URI
   | HandleURI URI
   deriving (Show, Eq)
@@ -82,9 +81,9 @@ initialModel uri =
     { _uri = uri,
       _msg = Message "",
       _received = mempty,
-      _mLeftButton = Button.initialModel "-",
-      _mValue = 0,
-      _mRightButton = Button.initialModel "+"
+      _leftButton = Button.initialModel "-",
+      _value = 0,
+      _rightButton = Button.initialModel "+"
     }
 
 updateModel :: Action -> Transition Action Model ()
@@ -93,23 +92,27 @@ updateModel action = case action of
   WSMsg act -> toTransition (handleWebSocket act)
   LeftButtonAction act -> do
     -- Update the component's model, with whatever side effects it may have
-    zoom mLeftButton $ Button.updateModel iLeftButton act
+    zoom leftButton $ Button.updateModel iLeftButton act
     pure ()
   RightButtonAction act -> do
-    zoom mRightButton $ Button.updateModel iRightButton act
+    zoom rightButton $ Button.updateModel iRightButton act
     pure ()
   SubtractOne -> do
-    mValue -= 1
+    value -= 1
   AddOne -> do
-    mValue += 1
+    value += 1
   ManyClicksWarning i -> scheduleIO_ $ do
     consoleLog "Ouch! You're clicking too many times!"
     consoleLog (toMisoString i <> " is way too much for me to handle!")
   NoOp -> pure ()
 
-handleRoute :: RouteMsg -> Model -> Effect Action Model
+handleRoute :: RouteAction -> Model -> Effect Action Model
 handleRoute (HandleURI u) m =
   m {_uri = u} <# do
+#ifdef __GHCJS__
+    x <- _get apiClient "actor"
+    consoleLog $ toMisoString $ show x
+#endif
     pure NoOp
 handleRoute (ChangeURI u) m =
   m <# do
@@ -119,8 +122,10 @@ handleRoute (ChangeURI u) m =
 handleWebSocket :: WSMsg -> Model -> Effect Action Model
 handleWebSocket (ReceiveMsg (WebSocketMessage (Message m))) model =
   noEff model {_received = m}
-handleWebSocket (SendMsg m) model = model <# do send m >> pure NoOp
-handleWebSocket (UpdateMsg m) model = noEff model {_msg = Message m}
+handleWebSocket (SendMsg m) model =
+  model <# do send m >> pure NoOp
+handleWebSocket (UpdateMsg m) model =
+  noEff model {_msg = Message m}
 handleWebSocket _ model = noEff model
 
 type Routes = About :<|> Home
@@ -148,9 +153,9 @@ home :: Model -> View Action
 home m =
   div_
     []
-    [ Button.viewModel iLeftButton $ m ^. mLeftButton,
-      text $ m ^. mValue . to show . to toMisoString,
-      Button.viewModel iRightButton $ m ^. mRightButton,
+    [ Button.viewModel iLeftButton $ m ^. leftButton,
+      text $ m ^. value . to show . to toMisoString,
+      Button.viewModel iRightButton $ m ^. rightButton,
       div_ [] [button_ [onClick goAbout] [text "go about"]]
     ]
 
@@ -171,11 +176,12 @@ iRightButton =
       Button.manyClicks = ManyClicksWarning
     }
 
-message :: Model -> View Action
-message Model {..} =
+about :: Model -> View Action
+about Model {..} =
   div_
     []
-    [ input_
+    [ div_ [] [button_ [onClick goHome] [text "go home"]],
+      input_
         [ type_ "text",
           onInput (WSMsg . UpdateMsg),
           onChange (WSMsg . SendMsg . Message)
@@ -184,15 +190,6 @@ message Model {..} =
         [onClick (WSMsg $ SendMsg _msg)]
         [text "Send to echo server"],
       div_ [] [p_ [] [text _received | not . S.null $ _received]]
-    ]
-
-about :: Model -> View Action
-about m =
-  div_
-    []
-    [ div_ [] [text "about"],
-      button_ [onClick goHome] [text "go home"],
-      message m
     ]
 
 the404 :: View Action

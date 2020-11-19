@@ -1,4 +1,5 @@
 .stack-work/
+.vscode/
 dist-newstyle/
 cabal.project.local
 .ghc.environment.*
@@ -10,3 +11,4 @@ dist
 *.o
 *.hi
 *.jsexe
+*.out
