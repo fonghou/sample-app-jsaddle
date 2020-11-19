@@ -13,17 +13,8 @@
 
 module Api where
 
-#ifdef __GHCJS__
-import JavaScript.Web.XMLHttpRequest
-import Servant.Client.Ghcjs
-import Servant.Client.Internal.XhrClient (runClientMOrigin)
-#else
-import Servant.Client
-import Network.HTTP.Client (newManager, defaultManagerSettings)
-#endif
-
 import Miso
-import Control.Exception
+import Control.Monad.Catch
 import Control.Lens
 import Data.Aeson
 import GHC.Generics (Generic)
@@ -31,6 +22,7 @@ import Servant.API
 import Servant.API.Generic
 import Servant.Client.Generic
 import Servant.Links
+import Servant.Client.JSaddle
 
 data Api route = Api
   { _get :: route :- Capture "table" String :> Get '[JSON] Value,
@@ -38,29 +30,18 @@ data Api route = Api
   }
   deriving (Generic)
 
--- $> _get apiLink "actor"
+-- > _get apiLink "actor"
 --
 apiLink :: Api (AsLink Link)
 apiLink = allFieldLinks
 
--- $> _get apiClient "film_list"
+-- > _get apiClient "film_list"
 --
-apiClient :: Api (AsClientT IO)
-apiClient = genericClientHoist $ \m -> runClient m >>= either throwIO return
+apiClient :: Api (AsClientT JSM)
+apiClient = genericClientHoist $ \m -> runClient m >>= either throwM return
 
 url :: BaseUrl
 url = BaseUrl Http "localhost" 3000 ""
 
-#ifdef __GHCJS__
-
-runClient :: ClientM a -> IO (Either ClientError a)
-runClient route = runClientMOrigin route $ ClientEnv url
-
-#else
-
-runClient :: ClientM a -> IO (Either ClientError a)
-runClient route = do
-  manager <- newManager defaultManagerSettings
-  runClientM route $ mkClientEnv manager url
-
-#endif
+runClient :: ClientM a -> JSM (Either ClientError a)
+runClient route = runClientM route $ mkClientEnv url

@@ -109,10 +109,8 @@ updateModel action = case action of
 handleRoute :: RouteAction -> Model -> Effect Action Model
 handleRoute (HandleURI u) m =
   m {_uri = u} <# do
-#ifdef __GHCJS__
     x <- _get apiClient "actor"
     consoleLog $ toMisoString $ show x
-#endif
     pure NoOp
 handleRoute (ChangeURI u) m =
   m <# do
