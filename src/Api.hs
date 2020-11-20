@@ -33,18 +33,6 @@ import qualified Network.HTTP.Types as HTTP
 -- import Servant.API.NamedArgs
 -- import Servant.Client.NamedArgs ()
 
-data Count = Exact | Planned | Estimated
-
-instance ToHttpApiData Count where
-  toQueryParam Exact = "count=exact"
-  toQueryParam Planned = "count=planned"
-  toQueryParam Estimated = "count=estimated"
-
-instance ToHttpApiData PKey where
-  toQueryParam x = "eq." <> T.pack (show x)
-
-newtype PKey = PKey Integer deriving (Eq, Show)
-
 -- data NamedApi route = NamedApi
 --   { _namedGet :: route
 --         :- Capture "table" String
@@ -86,11 +74,23 @@ data Api route = Api
         :> Get '[JSON] (Headers '[Header "Content-Range" String] JSON.Value),
     _put :: route
         :- Capture "table" String
-        :> QueryParam "pkey" PKey
+        :> QueryParam' [Required, Strict] "pkey" PKey
         :> ReqBody '[JSON] JSON.Value
         :> Put '[JSON] JSON.Value
   }
   deriving (Generic)
+
+data Count = Exact | Planned | Estimated
+
+instance ToHttpApiData Count where
+  toQueryParam Exact = "count=exact"
+  toQueryParam Planned = "count=planned"
+  toQueryParam Estimated = "count=estimated"
+
+instance ToHttpApiData PKey where
+  toQueryParam x = "eq." <> T.pack (show x)
+
+newtype PKey = PKey Integer deriving (Eq, Show)
 
 data QueryArgs = QueryArgs
   { select :: Maybe String,
@@ -118,6 +118,9 @@ query :: [Char] -> QueryArgs -> JSM ([HTTP.Header], JSON.Value)
 query table QueryArgs {..} = do
   x <- _get apiClient table count select and or order limit offset
   return (getHeaders x, getResponse x)
+
+upsert :: String -> PKey -> JSON.Value -> JSM JSON.Value
+upsert = _put apiClient
 
 -- $> :set -XOverloadedLabels
 

@@ -12,9 +12,9 @@ executable app
     Api
     Button
   build-depends:
-    base, exceptions, aeson, aeson-pretty,
-    lens, lens-aeson, generic-lens, bytestring, text, http-types,
-    miso, servant, servant-client-core, servant-jsaddle,
+    base, exceptions, text, aeson, aeson-pretty,
+    lens, lens-aeson, generic-lens,
+    miso, http-types, servant, servant-client-core, servant-jsaddle,
     -- named, servant-namedargs, servant-client-namedargs
   if impl(ghcjs)
     build-depends: ghcjs-base
@@ -22,6 +22,5 @@ executable app
     cpp-options:   -DGHCJS_BROWSER
   if !impl(ghcjs)
     build-depends:
-     jsaddle, jsaddle-warp, http-client,
-     warp, websockets, servant-client
+     jsaddle, jsaddle-warp, http-client, servant-client, warp, websockets
   default-language: Haskell2010
