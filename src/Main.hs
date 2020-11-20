@@ -4,6 +4,7 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -103,14 +104,14 @@ updateModel action = case action of
     value += 1
   ManyClicksWarning i -> scheduleIO_ $ do
     consoleLog "Ouch! You're clicking too many times!"
-    consoleLog (toMisoString i <> " is way too much for me to handle!")
+    consoleLog (ms i <> " is way too much for me to handle!")
   NoOp -> pure ()
 
 handleRoute :: RouteAction -> Model -> Effect Action Model
 handleRoute (HandleURI u) m =
   m {_uri = u} <# do
-    x <- _get apiClient "actor"
-    consoleLog $ toMisoString $ show x
+    x <- Api.query "film" Api.defaults {select = Just "title", limit = Just 3}
+    consoleLog $ ms $ show x
     pure NoOp
 handleRoute (ChangeURI u) m =
   m <# do
@@ -152,7 +153,7 @@ home m =
   div_
     []
     [ Button.viewModel iLeftButton $ m ^. leftButton,
-      text $ m ^. value . to show . to toMisoString,
+      text $ m ^. value . to show . to ms,
       Button.viewModel iRightButton $ m ^. rightButton,
       div_ [] [button_ [onClick goAbout] [text "go about"]]
     ]

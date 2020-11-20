@@ -68,6 +68,5 @@ let
   );
 in
   haskellPackages.callCabal2nix "app" ./. {
-    servant-client-ghcjs = haskellPackages.servant-client-ghcjs;
     servant-jsaddle = haskellPackages.servant-jsaddle;
   }

@@ -5,9 +5,9 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StrictData #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -18,30 +18,112 @@ import qualified Servant.Client as Test
 import Network.HTTP.Client (newManager, defaultManagerSettings)
 #endif
 
-import Miso
 import Control.Monad.Catch
-import Control.Lens
-import Data.Aeson
+import Data.Aeson as JSON
+import Data.Text as T
 import GHC.Generics (Generic)
+import Miso
 import Servant.API
 import Servant.API.Generic
 import Servant.Client.Generic
-import Servant.Links
 import Servant.Client.JSaddle
+import Servant.Links (AsLink, allFieldLinks)
+import qualified Network.HTTP.Types as HTTP
+
+-- import Servant.API.NamedArgs
+-- import Servant.Client.NamedArgs ()
+
+data Count = Exact | Planned | Estimated
+
+instance ToHttpApiData Count where
+  toQueryParam Exact = "count=exact"
+  toQueryParam Planned = "count=planned"
+  toQueryParam Estimated = "count=estimated"
+
+instance ToHttpApiData PKey where
+  toQueryParam x = "eq." <> T.pack (show x)
+
+newtype PKey = PKey Integer deriving (Eq, Show)
+
+-- data NamedApi route = NamedApi
+--   { _namedGet :: route
+--         :- Capture "table" String
+--         :> OptionalNamedParam "select" String
+--         :> OptionalNamedParam "and" String
+--         :> OptionalNamedParam "or" String
+--         :> OptionalNamedParam "order" String
+--         :> OptionalNamedParam "limit" Int
+--         :> OptionalNamedParam "offset" Int
+--         :> Get '[JSON] Value,
+--     _namedPagenate :: route
+--         :- Capture "table" String
+--         :> NamedHeader "prefer" Count
+--         :> OptionalNamedParam "select" String
+--         :> OptionalNamedParam "and" String
+--         :> OptionalNamedParam "or" String
+--         :> OptionalNamedParam "order" String
+--         :> OptionalNamedParam "limit" Int
+--         :> OptionalNamedParam "offset" Int
+--         :> Get '[JSON] (Headers '[Header "Content-Range" String] Value),
+--     _namedPut :: route
+--         :- Capture "table" String
+--         :> QueryParam "pkey" PKey
+--         :> ReqBody '[JSON] Value
+--         :> Put '[JSON] Value
+--   }
+--   deriving (Generic)
 
 data Api route = Api
-  { _get :: route :- Capture "table" String :> Get '[JSON] Value,
-    _put :: route :- ReqBody '[JSON] Value :> Put '[JSON] Value
+  { _get :: route
+        :- Capture "table" String
+        :> Header "Prefer" Count
+        :> QueryParam "select" String
+        :> QueryParam "and" String
+        :> QueryParam "or" String
+        :> QueryParam "order" String
+        :> QueryParam "limit" Int
+        :> QueryParam "offset" Int
+        :> Get '[JSON] (Headers '[Header "Content-Range" String] JSON.Value),
+    _put :: route
+        :- Capture "table" String
+        :> QueryParam "pkey" PKey
+        :> ReqBody '[JSON] JSON.Value
+        :> Put '[JSON] JSON.Value
   }
   deriving (Generic)
 
--- > _get apiLink "actor"
---
+data QueryArgs = QueryArgs
+  { select :: Maybe String,
+    and :: Maybe String,
+    or :: Maybe String,
+    order :: Maybe String,
+    limit :: Maybe Int,
+    offset :: Maybe Int,
+    count :: Maybe Count
+  }
+
+defaults :: QueryArgs
+defaults =
+  QueryArgs
+    { select = Nothing,
+      and = Nothing,
+      or = Nothing,
+      order = Nothing,
+      limit = Nothing,
+      offset = Nothing,
+      count = Just Estimated
+    }
+
+query :: [Char] -> QueryArgs -> JSM ([HTTP.Header], JSON.Value)
+query table QueryArgs {..} = do
+  x <- _get apiClient table count select and or order limit offset
+  return (getHeaders x, getResponse x)
+
+-- $> :set -XOverloadedLabels
+
 apiLink :: Api (AsLink Link)
 apiLink = allFieldLinks
 
--- > _get apiClient "film_list"
---
 apiClient :: Api (AsClientT JSM)
 apiClient = genericClientHoist $ \m -> runClient m >>= either throwM return
 
@@ -52,9 +134,6 @@ runClient :: ClientM a -> JSM (Either ClientError a)
 runClient route = runClientM route $ mkClientEnv url
 
 #ifndef __GHCJS__
-
--- $> _get apiClientIO "actor"
---
 
 apiClientIO :: Api (AsClientT IO)
 apiClientIO = genericClientHoist $ \m -> runClientIO m >>= either throwM return
