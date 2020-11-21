@@ -12,9 +12,9 @@ executable app
     Api
     Button
   build-depends:
-    base, exceptions, text, aeson, aeson-pretty,
-    lens, lens-aeson, generic-lens,
-    miso, http-types, servant, servant-client-core, servant-jsaddle,
+    miso, base, async, exceptions, transformers, text,
+    aeson, aeson-pretty, containers, http-types, lens, lens-aeson, generic-lens,
+    http-types, servant, servant-client-core, servant-auth, servant-jsaddle,
     -- named, servant-namedargs, servant-client-namedargs
   if impl(ghcjs)
     build-depends: ghcjs-base

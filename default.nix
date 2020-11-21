@@ -6,8 +6,8 @@ let
   pkgs = (
     import (
       builtins.fetchTarball {
-        url = "https://github.com/dmjio/miso/archive/ea25964565074e73d4052b56b60b6e101fa08bc5.tar.gz";
-        sha256 = "1yb9yvc0ln4yn1jk2k5kwwa1s32310abawz40yd8cqqkm1z7w6wg";
+        url = "https://github.com/dmjio/miso/archive/d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36.tar.gz";
+        sha256 = "0c6sx43znxmf7kcpn8s59x02rr7a4yilj1xfjjw1l5srf9dzxix5";
       }
     ) {}
   ).pkgs;
@@ -36,19 +36,9 @@ let
           servant-client-core = pkgs.haskell.lib.dontCheck (
             hself.callHackage "servant-client-core" "0.16" {}
           );
-          servant-client-ghcjs =
-            let
-              src =
-                pkgs.fetchFromGitHub {
-                  owner = "haskell-servant";
-                  repo = "servant";
-                  rev = "v0.16";
-                  sha256 = "0dyn50gidzbgyq9yvqijnysai9hwd3srqvk8f8rykh09l375xb9j";
-                } + "/servant-client-ghcjs";
-            in
-              pkgs.haskell.lib.doJailbreak (
-                hself.callCabal2nix "servant-client-ghcjs" src {}
-              );
+          servant-auth = pkgs.haskell.lib.dontCheck (
+            hself.callHackage "servant-auth" "0.3.2.0" {}
+          );
           servant-jsaddle =
             let
               src =
@@ -67,6 +57,7 @@ let
     }
   );
 in
+  with pkgs;
   haskellPackages.callCabal2nix "app" ./. {
     servant-jsaddle = haskellPackages.servant-jsaddle;
   }

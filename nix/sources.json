@@ -1,4 +1,16 @@
 {
+    "miso": {
+        "branch": "master",
+        "description": ":ramen: A tasty Haskell front-end framework",
+        "homepage": "https://haskell-miso.org",
+        "owner": "dmjio",
+        "repo": "miso",
+        "rev": "d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36",
+        "sha256": "0c6sx43znxmf7kcpn8s59x02rr7a4yilj1xfjjw1l5srf9dzxix5",
+        "type": "tarball",
+        "url": "https://github.com/dmjio/miso/archive/d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",
@@ -21,6 +33,18 @@
         "sha256": "1ih82cn2mf47pzshh3iqmpa4irw5yvgmvglhy1ah34vjisahxgrx",
         "type": "tarball",
         "url": "https://github.com/NixOS/nixpkgs/archive/6d27bb8d759a16829f8bbf9a07637b7eec01e464.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "servant-jsaddle": {
+        "branch": "master",
+        "description": "servant jsaddle client",
+        "homepage": null,
+        "owner": "haskell-servant",
+        "repo": "servant-jsaddle",
+        "rev": "6ef0204b651b259ae165c3ad94e5814213515e44",
+        "sha256": "1193iplbbqvxd0nxbzikr6x8ilc6qqi4rp8yr34zlrzi0d32lqjn",
+        "type": "tarball",
+        "url": "https://github.com/haskell-servant/servant-jsaddle/archive/6ef0204b651b259ae165c3ad94e5814213515e44.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

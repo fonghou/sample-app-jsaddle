@@ -114,7 +114,7 @@ defaults =
       count = Just Estimated
     }
 
-query :: [Char] -> QueryArgs -> JSM ([HTTP.Header], JSON.Value)
+query :: String -> QueryArgs -> JSM ([HTTP.Header], JSON.Value)
 query table QueryArgs {..} = do
   x <- _get apiClient table count select and or order limit offset
   return (getHeaders x, getResponse x)
