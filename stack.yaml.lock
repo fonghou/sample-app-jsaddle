@@ -27,27 +27,6 @@ packages:
     git: https://github.com/FongHou/servant-jsaddle.git
     commit: 2a45a6c9729328b8ccd330c902cc94aeda5af1d9
 - completed:
-    hackage: servant-namedargs-0.1.1.1@sha256:7e7705cd90243e41be10ce1dbdb9ac0aaf52875f97554f7134e4f6e0c6701d7c,1259
-    pantry-tree:
-      size: 349
-      sha256: 79a120788184e294a68977f942a32844a196487b30f0e6ba46a1ba92a3084841
-  original:
-    hackage: servant-namedargs-0.1.1.1
-- completed:
-    hackage: servant-client-namedargs-0.1.1.1@sha256:5d634477b005893f77d134d37753492430d80e323a59873e9e00f9da636d180f,1809
-    pantry-tree:
-      size: 366
-      sha256: 256369572fa648da29e778cfb86e3b3fc578c58fffd341d474019c0514cd24d9
-  original:
-    hackage: servant-client-namedargs-0.1.1.1
-- completed:
-    hackage: aeson-schemas-1.3.2@sha256:0fe60c91e7388308efd114b81a17affa9821da18304b7eee57bfda8231c275c0,5750
-    pantry-tree:
-      size: 5366
-      sha256: 800f2f00b01eb2e345d2333ed73c4cc01bb8d49dcb0bbc504ffa3f24d1683c31
-  original:
-    hackage: aeson-schemas-1.3.2
-- completed:
     hackage: aeson-pretty-0.8.8@sha256:9924a16d0c362ff59dd6d5b875749ff5d599d2688f89d080388a0014714441ef,2291
     pantry-tree:
       size: 337
@@ -55,19 +34,19 @@ packages:
   original:
     hackage: aeson-pretty-0.8.8
 - completed:
-    hackage: lens-aeson-1.1@sha256:4e1794106d49c13a60d6ce1b1d4f3a419c6c6d67371e0ef9fc39e7178fd47dc7,2313
+    hackage: ghcjs-dom-0.9.4.0@sha256:c2b3d25145e24b66a8a5078c0d750305b577aeff05957cf282d74f6e8d2424dd,32082
     pantry-tree:
-      size: 809
-      sha256: ac971d221eaa3843f896ada796dd237ec4005257ae899f064e6b162e02548439
+      size: 357
+      sha256: de76dd6924d6ad9124e836a0fa66a0338f585acbcbfbffd90e8357d1b6b8fbb4
   original:
-    hackage: lens-aeson-1.1
+    hackage: ghcjs-dom-0.9.4.0
 - completed:
-    hackage: named-0.2.0.0@sha256:8df779149e541567e34e233a83876fccaaa0f93c0e530f5e7805996720392d41,2143
+    hackage: ghcjs-dom-jsaddle-0.9.4.0@sha256:31ddfc5ebcbb4811b0c956fd5fcf106643012b46bb4e0bc2f15d09db1d116fbb,39525
     pantry-tree:
-      size: 369
-      sha256: da0a68cf008fa87d80e91ef7a7ee2c70338bf8128805a9a8a8214dabc8870e23
+      size: 164
+      sha256: 3f665a5e70fab961bf236e5c672f497901632785d403024d7bab1785444a0816
   original:
-    hackage: named-0.2.0.0
+    hackage: ghcjs-dom-jsaddle-0.9.4.0
 - completed:
     hackage: jsaddle-0.9.7.1@sha256:711e48fa92c04d373fc18f058743dd9a53aecd048c851a47c932ff7d9bff2c82,4418
     pantry-tree:
@@ -90,19 +69,12 @@ packages:
   original:
     hackage: jsaddle-warp-0.9.7.1
 - completed:
-    hackage: ghcjs-dom-0.9.4.0@sha256:c2b3d25145e24b66a8a5078c0d750305b577aeff05957cf282d74f6e8d2424dd,32082
+    hackage: lens-aeson-1.1@sha256:4e1794106d49c13a60d6ce1b1d4f3a419c6c6d67371e0ef9fc39e7178fd47dc7,2313
     pantry-tree:
-      size: 357
-      sha256: de76dd6924d6ad9124e836a0fa66a0338f585acbcbfbffd90e8357d1b6b8fbb4
+      size: 809
+      sha256: ac971d221eaa3843f896ada796dd237ec4005257ae899f064e6b162e02548439
   original:
-    hackage: ghcjs-dom-0.9.4.0
-- completed:
-    hackage: ghcjs-dom-jsaddle-0.9.4.0@sha256:31ddfc5ebcbb4811b0c956fd5fcf106643012b46bb4e0bc2f15d09db1d116fbb,39525
-    pantry-tree:
-      size: 164
-      sha256: 3f665a5e70fab961bf236e5c672f497901632785d403024d7bab1785444a0816
-  original:
-    hackage: ghcjs-dom-jsaddle-0.9.4.0
+    hackage: lens-aeson-1.1
 - completed:
     hackage: ref-tf-0.4.0.2@sha256:69de3550250e0cd69f45d080359cb314a9487c915024349c75b78732bbee9332,1134
     pantry-tree:

@@ -36,9 +36,6 @@ let
           servant-client-core = pkgs.haskell.lib.dontCheck (
             hself.callHackage "servant-client-core" "0.16" {}
           );
-          servant-auth = pkgs.haskell.lib.dontCheck (
-            hself.callHackage "servant-auth" "0.3.2.0" {}
-          );
           servant-jsaddle =
             let
               src =

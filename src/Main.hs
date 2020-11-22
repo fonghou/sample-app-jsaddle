@@ -110,7 +110,13 @@ updateModel action = case action of
 handleRoute :: RouteAction -> Model -> Effect Action Model
 handleRoute (HandleURI u) m =
   m {_uri = u} <# do
-    x <- Api.query "film" Api.defaults {select = Just "title", limit = Just 3}
+    x <-
+      Api.query
+        "film"
+        Api.defaults
+          { select = Just "title,actor(first_name,last_name)",
+            limit = Just 3
+          }
     consoleLog $ ms $ show x
     pure NoOp
 handleRoute (ChangeURI u) m =

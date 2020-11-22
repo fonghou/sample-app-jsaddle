@@ -1,1 +1,1 @@
---command="stack repl" -W -T :main --allow-eval
+--command="stack repl" -a -W -T :main --restart=./stack.yaml --restart=./app.cabal

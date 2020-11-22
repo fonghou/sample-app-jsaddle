@@ -30,37 +30,6 @@ import Servant.Client.JSaddle
 import Servant.Links (AsLink, allFieldLinks)
 import qualified Network.HTTP.Types as HTTP
 
--- import Servant.API.NamedArgs
--- import Servant.Client.NamedArgs ()
-
--- data NamedApi route = NamedApi
---   { _namedGet :: route
---         :- Capture "table" String
---         :> OptionalNamedParam "select" String
---         :> OptionalNamedParam "and" String
---         :> OptionalNamedParam "or" String
---         :> OptionalNamedParam "order" String
---         :> OptionalNamedParam "limit" Int
---         :> OptionalNamedParam "offset" Int
---         :> Get '[JSON] Value,
---     _namedPagenate :: route
---         :- Capture "table" String
---         :> NamedHeader "prefer" Count
---         :> OptionalNamedParam "select" String
---         :> OptionalNamedParam "and" String
---         :> OptionalNamedParam "or" String
---         :> OptionalNamedParam "order" String
---         :> OptionalNamedParam "limit" Int
---         :> OptionalNamedParam "offset" Int
---         :> Get '[JSON] (Headers '[Header "Content-Range" String] Value),
---     _namedPut :: route
---         :- Capture "table" String
---         :> QueryParam "pkey" PKey
---         :> ReqBody '[JSON] Value
---         :> Put '[JSON] Value
---   }
---   deriving (Generic)
-
 data Api route = Api
   { _get :: route
         :- Capture "table" String
