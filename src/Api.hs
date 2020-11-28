@@ -16,6 +16,11 @@ module Api where
 #ifndef __GHCJS__
 import qualified Servant.Client as Test
 import Network.HTTP.Client (newManager, defaultManagerSettings)
+import qualified JSDOM.Types as JS
+import qualified JSDOM.XMLHttpRequest as JS
+#else
+import qualified GHCJS.DOM.Types as JS
+import qualified GHCJS.DOM.XMLHttpRequest as JS
 #endif
 
 import Control.Monad.Catch
@@ -23,15 +28,16 @@ import Data.Aeson as JSON
 import Data.Text as T
 import GHC.Generics (Generic)
 import Miso
+import qualified Network.HTTP.Types as HTTP
 import Servant.API
 import Servant.API.Generic
 import Servant.Client.Generic
 import Servant.Client.JSaddle
 import Servant.Links (AsLink, allFieldLinks)
-import qualified Network.HTTP.Types as HTTP
 
 data Api route = Api
-  { _get :: route
+  { _get ::
+      route
         :- Capture "table" String
         :> Header "Prefer" Count
         :> QueryParam "select" String
@@ -41,7 +47,8 @@ data Api route = Api
         :> QueryParam "limit" Int
         :> QueryParam "offset" Int
         :> Get '[JSON] (Headers '[Header "Content-Range" String] JSON.Value),
-    _put :: route
+    _put ::
+      route
         :- Capture "table" String
         :> QueryParam' [Required, Strict] "pkey" PKey
         :> ReqBody '[JSON] JSON.Value
@@ -103,7 +110,13 @@ url :: BaseUrl
 url = BaseUrl Http "localhost" 3000 ""
 
 runClient :: ClientM a -> JSM (Either ClientError a)
-runClient route = runClientM route $ mkClientEnv url
+runClient route = runClientM route $ ClientEnv url fixUp
+  where
+    fixUp xhr = do
+      JS.setRequestHeader xhr
+        ("Authorization" :: JS.JSString)
+        ("Bear JWT" :: JS.JSString)
+      consoleLog "xhr.setRequestHeader('Authorization', 'Bear jwt)"
 
 #ifndef __GHCJS__
 
