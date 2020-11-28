@@ -1,3 +1,4 @@
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -25,7 +26,8 @@ import JavaScript.Web.XMLHttpRequest
 import Api
 import qualified Button
 import Control.Lens
-import Data.Aeson
+import Data.Aeson as JSON
+import Data.Aeson.Encode.Pretty as JSON
 import Data.Either
 import Data.Proxy
 import GHC.Generics (Generic)
@@ -110,14 +112,6 @@ updateModel action = case action of
 handleRoute :: RouteAction -> Model -> Effect Action Model
 handleRoute (HandleURI u) m =
   m {_uri = u} <# do
-    x <-
-      Api.query
-        "film"
-        Api.defaults
-          { select = Just "title,actor(first_name,last_name)",
-            limit = Just 3
-          }
-    consoleLog $ ms $ show x
     pure NoOp
 handleRoute (ChangeURI u) m =
   m <# do
@@ -128,7 +122,12 @@ handleWebSocket :: WSMsg -> Model -> Effect Action Model
 handleWebSocket (ReceiveMsg (WebSocketMessage (Message m))) model =
   noEff model {_received = m}
 handleWebSocket (SendMsg m) model =
-  model <# do send m >> pure NoOp
+  model <# do
+    let Message what = m
+    x <- Api.query (fromMisoString what) Api.defaults{limit = Just 1}
+    consoleLog $ ms $ show x
+    send $ Message (toMisoString . JSON.encodePretty $ snd x)
+    pure NoOp
 handleWebSocket (UpdateMsg m) model =
   noEff model {_msg = Message m}
 handleWebSocket _ model = noEff model
@@ -150,18 +149,46 @@ goAbout, goHome :: Action
 
 -- Call the component's `viewModel` where you want it to be drawn
 viewModel :: Model -> View Action
-viewModel m = fromRight the404 $ runRoute routes handlers (^. uri) m
+viewModel m =
+  div_
+    [class_ "ui container"]
+    [ div_
+        [class_ "ui breadcrumb"]
+        [ a_ [class_ "section", onClick goHome] [text "Home"],
+          span_ [class_ "divider"] [text " | "],
+          a_ [class_ "section", onClick goAbout] [text "About"]
+        ],
+      div_ [class_ "ui divider"] [],
+      fromRight the404 $ runRoute routes handlers (^. uri) m
+    ]
   where
     handlers = about :<|> home
 
 home :: Model -> View Action
-home m =
+home Model {..} =
+  div_
+    [class_ "ui container"]
+    [ input_
+        [ class_ "ui attached segment input",
+          type_ "text",
+          onInput (WSMsg . UpdateMsg),
+          onChange (WSMsg . SendMsg . Message)
+        ],
+      button_
+        [ class_ "ui bottom attached button",
+          onClick (WSMsg $ SendMsg _msg)
+        ]
+        [text "Send to echo server"],
+      div_ [] [pre_ [] [text _received | not . S.null $ _received]]
+    ]
+
+about :: Model -> View Action
+about m =
   div_
     []
     [ Button.viewModel iLeftButton $ m ^. leftButton,
       text $ m ^. value . to show . to ms,
-      Button.viewModel iRightButton $ m ^. rightButton,
-      div_ [] [button_ [onClick goAbout] [text "go about"]]
+      Button.viewModel iRightButton $ m ^. rightButton
     ]
 
 -- Filling in the Interface values for both buttons
@@ -181,29 +208,9 @@ iRightButton =
       Button.manyClicks = ManyClicksWarning
     }
 
-about :: Model -> View Action
-about Model {..} =
-  div_
-    []
-    [ div_ [] [button_ [onClick goHome] [text "go home"]],
-      input_
-        [ type_ "text",
-          onInput (WSMsg . UpdateMsg),
-          onChange (WSMsg . SendMsg . Message)
-        ],
-      button_
-        [onClick (WSMsg $ SendMsg _msg)]
-        [text "Send to echo server"],
-      div_ [] [p_ [] [text _received | not . S.null $ _received]]
-    ]
-
 the404 :: View Action
 the404 =
-  div_
-    []
-    [ text "the 404 :( ",
-      button_ [onClick goHome] [text "go home"]
-    ]
+  h4_ [] [ text "Nothing to see here :)" ]
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
