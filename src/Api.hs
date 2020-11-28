@@ -13,14 +13,14 @@
 
 module Api where
 
-#ifndef __GHCJS__
-import qualified Servant.Client as Test
-import Network.HTTP.Client (newManager, defaultManagerSettings)
-import qualified JSDOM.Types as JS
-import qualified JSDOM.XMLHttpRequest as JS
-#else
+#ifdef __GHCJS__
 import qualified GHCJS.DOM.Types as JS
 import qualified GHCJS.DOM.XMLHttpRequest as JS
+#else
+import qualified JSDOM.Types as JS
+import qualified JSDOM.XMLHttpRequest as JS
+import qualified Servant.Client as Test
+import Network.HTTP.Client (newManager, defaultManagerSettings)
 #endif
 
 import Control.Monad.Catch
@@ -110,21 +110,25 @@ url :: BaseUrl
 url = BaseUrl Http "localhost" 3000 ""
 
 runClient :: ClientM a -> JSM (Either ClientError a)
-runClient route = runClientM route $ ClientEnv url fixUp
+runClient route = runClientM route $ ClientEnv url fixUpXhr
   where
-    fixUp xhr = do
+    fixUpXhr xhr = do
       JS.setRequestHeader xhr
         ("Authorization" :: JS.JSString)
         ("Bear JWT" :: JS.JSString)
-      consoleLog "xhr.setRequestHeader('Authorization', 'Bear jwt)"
 
 #ifndef __GHCJS__
 
-apiClientIO :: Api (AsClientT IO)
-apiClientIO = genericClientHoist $ \m -> runClientIO m >>= either throwM return
+query' :: String -> QueryArgs -> IO ([HTTP.Header], JSON.Value)
+query' table QueryArgs {..} = do
+  x <- _get apiClient' table count select and or order limit offset
+  return (getHeaders x, getResponse x)
 
-runClientIO :: Test.ClientM a -> IO (Either ClientError a)
-runClientIO route = do
+apiClient' :: Api (AsClientT IO)
+apiClient' = genericClientHoist $ \m -> runClient' m >>= either throwM return
+
+runClient' :: Test.ClientM a -> IO (Either ClientError a)
+runClient' route = do
   manager <- newManager defaultManagerSettings
   Test.runClientM route $ Test.mkClientEnv manager url
 
