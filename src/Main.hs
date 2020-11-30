@@ -1,4 +1,3 @@
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -7,8 +6,10 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE StrictData #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
@@ -19,8 +20,7 @@ module Main where
 
 #ifndef __GHCJS__
 import Language.Javascript.JSaddle.Warp as JSaddle ( run )
-#else
-import JavaScript.Web.XMLHttpRequest
+import Rapid
 #endif
 
 import Api
@@ -31,6 +31,7 @@ import Data.Aeson.Encode.Pretty as JSON
 import Data.Either
 import Data.Proxy
 import GHC.Generics (Generic)
+import qualified Login
 import Miso
 import Miso.String as S
 import Servant.API
@@ -45,12 +46,13 @@ instance ToJSON Message
 instance FromJSON Message
 
 data Model = Model
-  { _uri :: !URI,
-    _msg :: !Message,
-    _received :: !MisoString,
-    _leftButton :: !Button.Model,
-    _value :: !Int,
-    _rightButton :: !Button.Model
+  { _uri :: URI,
+    _login :: Login.Form,
+    _msg :: Message,
+    _received :: MisoString,
+    _leftButton :: Button.Model,
+    _value :: Int,
+    _rightButton :: Button.Model
   }
   deriving (Eq, Show)
 
@@ -59,29 +61,28 @@ makeLenses ''Model
 data Action
   = Router RouteAction
   | WSMsg WSMsg
+  | Login Login.Action
   | LeftButtonAction Button.Action
   | RightButtonAction Button.Action
   | AddOne
   | SubtractOne
   | ManyClicksWarning !Int
   | NoOp
-  deriving (Show, Eq)
 
 data RouteAction
   = ChangeURI URI
   | HandleURI URI
-  deriving (Show, Eq)
 
 data WSMsg
   = ReceiveMsg (WebSocket Message)
   | SendMsg Message
   | UpdateMsg MisoString
-  deriving (Show, Eq)
 
 initialModel :: URI -> Model
 initialModel uri =
   Model
     { _uri = uri,
+      _login = Login.Form "" "" (Checked False),
       _msg = Message "",
       _received = mempty,
       _leftButton = Button.initialModel "-",
@@ -91,10 +92,10 @@ initialModel uri =
 
 updateModel :: Action -> Transition Action Model ()
 updateModel action = case action of
-  Router act -> toTransition (handleRoute act)
-  WSMsg act -> toTransition (handleWebSocket act)
+  Router act -> toTransition $ handleRoute act
+  WSMsg act -> toTransition $ handleWebSocket act
+  Login act -> toTransition $ handleLogin act
   LeftButtonAction act -> do
-    -- Update the component's model, with whatever side effects it may have
     zoom leftButton $ Button.updateModel iLeftButton act
     pure ()
   RightButtonAction act -> do
@@ -108,6 +109,16 @@ updateModel action = case action of
     consoleLog "Ouch! You're clicking too many times!"
     consoleLog (ms i <> " is way too much for me to handle!")
   NoOp -> pure ()
+
+handleLogin :: Login.Action -> Model -> Effect Action Model
+handleLogin (Login.Update field value) m =
+  (m & login . field .~ value) <# do
+    consoleLog $ ms $ show value
+    pure NoOp
+handleLogin Login.Submit m =
+  m <# do
+    consoleLog $ ms $ show $ Login.validateForm $ _login m
+    pure NoOp
 
 handleRoute :: RouteAction -> Model -> Effect Action Model
 handleRoute (HandleURI u) m =
@@ -124,7 +135,7 @@ handleWebSocket (ReceiveMsg (WebSocketMessage (Message m))) model =
 handleWebSocket (SendMsg m) model =
   model <# do
     let Message what = m
-    x <- Api.query (fromMisoString what) Api.defaults{limit = Just 1}
+    x <- Api.query (fromMisoString what) Api.queryArgs {limit = Just 1}
     consoleLog $ ms $ show x
     send $ Message (toMisoString . JSON.encodePretty $ snd x)
     pure NoOp
@@ -138,6 +149,7 @@ type Home = View Action
 
 type About = "about" :> View Action
 
+routes :: Proxy Routes
 routes = Proxy :: Proxy Routes
 
 goAbout, goHome :: Action
@@ -147,6 +159,14 @@ goAbout, goHome :: Action
     home = Proxy :: Proxy Home
     about = Proxy :: Proxy About
 
+onPreventClick :: action -> Attribute action
+onPreventClick action =
+  onWithOptions
+    Miso.defaultOptions {preventDefault = True}
+    "click"
+    emptyDecoder
+    $ \() -> action
+
 -- Call the component's `viewModel` where you want it to be drawn
 viewModel :: Model -> View Action
 viewModel m =
@@ -154,9 +174,9 @@ viewModel m =
     [class_ "ui container"]
     [ div_
         [class_ "ui breadcrumb"]
-        [ a_ [class_ "section", onClick goHome] [text "Home"],
+        [ a_ [class_ "section", onPreventClick goHome] [text "Home"],
           span_ [class_ "divider"] [text " | "],
-          a_ [class_ "section", onClick goAbout] [text "About"]
+          a_ [class_ "section", onPreventClick goAbout] [text "About"]
         ],
       div_ [class_ "ui divider"] [],
       fromRight the404 $ runRoute routes handlers (^. uri) m
@@ -179,7 +199,8 @@ home Model {..} =
           onClick (WSMsg $ SendMsg _msg)
         ]
         [text "Send to echo server"],
-      div_ [] [pre_ [] [text _received | not . S.null $ _received]]
+      div_ [] [pre_ [] [text _received | not . S.null $ _received]],
+      Login <$> Login.viewModule _login
     ]
 
 about :: Model -> View Action
@@ -210,11 +231,12 @@ iRightButton =
 
 the404 :: View Action
 the404 =
-  h4_ [] [ text "Nothing to see here :)" ]
+  h4_ [] [text "Nothing to see here :)"]
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
-runApp = JSaddle.run 9090
+runApp app = rapid 0 $ \r ->
+    restart r ("jsaddle" :: String) $ JSaddle.run 9090 app
 #else
 runApp :: IO () -> IO ()
 runApp app = app

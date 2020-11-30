@@ -13,16 +13,13 @@
 
 module Api where
 
-#ifdef __GHCJS__
-import qualified GHCJS.DOM.Types as JS
-import qualified GHCJS.DOM.XMLHttpRequest as JS
-#else
-import qualified JSDOM.Types as JS
-import qualified JSDOM.XMLHttpRequest as JS
+#ifndef __GHCJS__
 import qualified Servant.Client as Test
 import Network.HTTP.Client (newManager, defaultManagerSettings)
 #endif
 
+import qualified GHCJS.DOM.Types as JS
+import qualified GHCJS.DOM.XMLHttpRequest as JS
 import Control.Monad.Catch
 import Data.Aeson as JSON
 import Data.Text as T
@@ -78,8 +75,8 @@ data QueryArgs = QueryArgs
     count :: Maybe Count
   }
 
-defaults :: QueryArgs
-defaults =
+queryArgs :: QueryArgs
+queryArgs =
   QueryArgs
     { select = Nothing,
       and = Nothing,
@@ -113,6 +110,7 @@ runClient :: ClientM a -> JSM (Either ClientError a)
 runClient route = runClientM route $ ClientEnv url fixUpXhr
   where
     fixUpXhr xhr = do
+      JS.setWithCredentials xhr True
       JS.setRequestHeader xhr
         ("Authorization" :: JS.JSString)
         ("Bear JWT" :: JS.JSString)

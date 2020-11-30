@@ -13,3 +13,4 @@ dist
 *.hi
 *.jsexe
 *.out
+tags

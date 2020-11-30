@@ -1,1 +1,1 @@
---command="stack repl" -a -W -T :main --restart=./stack.yaml --restart=./app.cabal
+--command="stack repl" -a -W

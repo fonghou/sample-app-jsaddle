@@ -35,6 +35,18 @@
         "url": "https://github.com/NixOS/nixpkgs/archive/6d27bb8d759a16829f8bbf9a07637b7eec01e464.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "product-profunctors": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "tomjaguarpaw",
+        "repo": "product-profunctors",
+        "rev": "ef0f5a9421b078a36492eccb04456f4ce88f5447",
+        "sha256": "0a0jpmfrhgvgzk2qmm9v0i5jq75314hr61g30g0nxazjnnyqqqw0",
+        "type": "tarball",
+        "url": "https://github.com/tomjaguarpaw/product-profunctors/archive/ef0f5a9421b078a36492eccb04456f4ce88f5447.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "servant-jsaddle": {
         "branch": "master",
         "description": "servant jsaddle client",
@@ -45,6 +57,18 @@
         "sha256": "1193iplbbqvxd0nxbzikr6x8ilc6qqi4rp8yr34zlrzi0d32lqjn",
         "type": "tarball",
         "url": "https://github.com/haskell-servant/servant-jsaddle/archive/6ef0204b651b259ae165c3ad94e5814213515e44.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "validation-selective": {
+        "branch": "main",
+        "description": "💂‍♂️ Lightweight pure validation based on Applicative and Selective functors",
+        "homepage": "https://kowainik.github.io/projects/validation-selective",
+        "owner": "kowainik",
+        "repo": "validation-selective",
+        "rev": "016378ba9bd8e459bd6599e58dfbdd395017d58d",
+        "sha256": "1mb74aw287cmwnz91m36c9fz89p5gf4ks9qw6g658jl3nfn326g1",
+        "type": "tarball",
+        "url": "https://github.com/kowainik/validation-selective/archive/016378ba9bd8e459bd6599e58dfbdd395017d58d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

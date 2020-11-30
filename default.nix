@@ -49,6 +49,19 @@ let
               pkgs.haskell.lib.doJailbreak (
                 hself.callCabal2nix "servant-jsaddle" src {}
               );
+          validation-selective =
+           let
+             src =
+               pkgs.fetchFromGitHub {
+                 owner = "kowainik";
+                 repo =  "validation-selective";
+                 rev =  "016378ba9bd8e459bd6599e58dfbdd395017d58d";
+                 sha256 =  "1mb74aw287cmwnz91m36c9fz89p5gf4ks9qw6g658jl3nfn326g1";
+               };
+          in
+            pkgs.haskell.lib.doJailbreak (
+              hself.callCabal2nix "validation-selective" src {}
+            );
         }
       );
     }
