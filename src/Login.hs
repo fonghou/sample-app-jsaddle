@@ -53,11 +53,11 @@ type Validated a = Validation (NonEmpty FormValidationError) a
 
 validateName :: MisoString -> Validated Username
 validateName name =
-  Username name <$ failureIf (S.null name) EmptyName
+  Username name <$ failureIf (S.null (S.strip name)) EmptyName
 
 validateShortPassword :: MisoString -> Validated Password
 validateShortPassword password =
-  Password password <$ failureIf (S.length password < 8) ShortPassword
+  Password password <$ failureIf (S.length (S.strip password) < 8) ShortPassword
 
 validatePasswordDigit :: MisoString -> Validated Password
 validatePasswordDigit password =
@@ -78,13 +78,12 @@ validateForm Form {..} =
     <*> validatePassword _password
     <*> Success _rememberMe
 
-form1 :: Form
-form1 = Form "" "xyz" (Checked False)
-
 -- $> validateForm form1
+form1 :: Form
+form1 = Form "\t  \n\r  " "xyz" (Checked False)
 
 data Action
-  = forall s. Show s => Update (Lens' Form s) s
+  = forall a. Show a => Update (Lens' Form a) a
   | Submit
 
 notEmpty :: (MonadError MisoString m) => MisoString -> m MisoString

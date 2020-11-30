@@ -62,6 +62,7 @@ data Action
   = Router RouteAction
   | WSMsg WSMsg
   | Login Login.Action
+  | AuthSub MisoString
   | LeftButtonAction Button.Action
   | RightButtonAction Button.Action
   | AddOne
@@ -95,6 +96,9 @@ updateModel action = case action of
   Router act -> toTransition $ handleRoute act
   WSMsg act -> toTransition $ handleWebSocket act
   Login act -> toTransition $ handleLogin act
+  AuthSub msg -> scheduleIO_ $ do
+    consoleLog $ "Got Window Event!!! " <> msg
+    pure ()
   LeftButtonAction act -> do
     zoom leftButton $ Button.updateModel iLeftButton act
     pure ()
@@ -229,6 +233,12 @@ iRightButton =
       Button.manyClicks = ManyClicksWarning
     }
 
+customEventDecoder :: Decoder MisoString
+customEventDecoder = Decoder {..}
+  where
+    decodeAt = DecodeTarget ["detail"]
+    decoder = withObject "detail" $ \o -> pure $ ms $ encode o
+
 the404 :: View Action
 the404 =
   h4_ [] [text "Nothing to see here :)"]
@@ -255,7 +265,8 @@ main = runApp $ do
     events = defaultEvents
     subs =
       [ uriSub (Router . HandleURI),
-        websocketSub wss protocols (WSMsg . ReceiveMsg)
+        websocketSub wss protocols (WSMsg . ReceiveMsg),
+        windowSub "oauth-event" customEventDecoder AuthSub
       ]
     wss = URL "wss://echo.websocket.org"
     protocols = Protocols []
