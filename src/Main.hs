@@ -1,19 +1,13 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingVia #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE StrictData #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Main where
@@ -38,12 +32,7 @@ import Servant.API
 import Servant.Links
 
 newtype Message = Message MisoString
-  deriving newtype (Eq, Show)
-  deriving (Generic)
-
-instance ToJSON Message
-
-instance FromJSON Message
+  deriving (Eq, Show, Generic, ToJSON, FromJSON)
 
 data Model = Model
   { _uri :: URI,
@@ -59,10 +48,10 @@ data Model = Model
 makeLenses ''Model
 
 data Action
-  = Router RouteAction
+  = Route RouteAction
   | WSMsg WSMsg
   | Login Login.Action
-  | AuthSub MisoString
+  | AuthToken MisoString
   | LeftButtonAction Button.Action
   | RightButtonAction Button.Action
   | AddOne
@@ -93,10 +82,10 @@ initialModel uri =
 
 updateModel :: Action -> Transition Action Model ()
 updateModel action = case action of
-  Router act -> toTransition $ handleRoute act
+  Route act -> toTransition $ handleRoute act
   WSMsg act -> toTransition $ handleWebSocket act
   Login act -> toTransition $ handleLogin act
-  AuthSub msg -> scheduleIO_ $ do
+  AuthToken msg -> scheduleIO_ $ do
     consoleLog $ "Got Window Event!!! " <> msg
     pure ()
   LeftButtonAction act -> do
@@ -159,7 +148,7 @@ routes = Proxy :: Proxy Routes
 goAbout, goHome :: Action
 (goHome, goAbout) = (goto routes home, goto routes about)
   where
-    goto a b = Router $ ChangeURI (linkURI (safeLink a b))
+    goto a b = Route $ ChangeURI (linkURI (safeLink a b))
     home = Proxy :: Proxy Home
     about = Proxy :: Proxy About
 
@@ -264,9 +253,9 @@ main = runApp $ do
     view = viewModel
     events = defaultEvents
     subs =
-      [ uriSub (Router . HandleURI),
+      [ uriSub (Route . HandleURI),
         websocketSub wss protocols (WSMsg . ReceiveMsg),
-        windowSub "oauth-event" customEventDecoder AuthSub
+        windowSub "oauth-event" customEventDecoder AuthToken
       ]
     wss = URL "wss://echo.websocket.org"
     protocols = Protocols []

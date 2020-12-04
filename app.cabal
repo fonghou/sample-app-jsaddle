@@ -31,8 +31,8 @@ executable app
     , servant
     , servant-client-core
     , servant-jsaddle
-    , validation-selective
     , text
+    , validation-selective
   if impl(ghcjs)
     build-depends: ghcjs-base
     ghcjs-options: -dedupe -fno-warn-missing-home-modules
@@ -40,7 +40,6 @@ executable app
   if !impl(ghcjs)
     build-depends:
        jsaddle
-     , jsaddle-dom
      , jsaddle-warp
      , http-client
      , rapid
