@@ -9,12 +9,12 @@ packages:
     version: 1.7.1.0
     git: https://github.com/dmjio/miso.git
     pantry-tree:
-      size: 9096
-      sha256: 359d5c75327bec576199aa78c92b04aa71ff03653a8b49e3e02930fa7329591d
-    commit: d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36
+      size: 8697
+      sha256: b263853c86d6ec7f1851f2aa7fff58748ed2230ccf05efc1f1abfc00cab147a5
+    commit: db5400ad7801076a8eac1c071a654b7317b78811
   original:
     git: https://github.com/dmjio/miso.git
-    commit: d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36
+    commit: db5400ad7801076a8eac1c071a654b7317b78811
 - completed:
     name: servant-jsaddle
     version: '0.16'

@@ -28,8 +28,8 @@ import GHC.Generics (Generic)
 import qualified Login
 import Miso
 import Miso.String as S
-import Servant.API
-import Servant.Links
+import Servant.API ( safeLink, type (:<|>)(..), type (:>) )
+import Servant.Links ( linkURI )
 
 newtype Message = Message MisoString
   deriving (Eq, Show, Generic, ToJSON, FromJSON)

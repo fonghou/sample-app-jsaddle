@@ -6,8 +6,8 @@ let
   pkgs = (
     import (
       builtins.fetchTarball {
-        url = "https://github.com/dmjio/miso/archive/d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36.tar.gz";
-        sha256 = "0c6sx43znxmf7kcpn8s59x02rr7a4yilj1xfjjw1l5srf9dzxix5";
+        url = "https://github.com/dmjio/miso/archive/db5400ad7801076a8eac1c071a654b7317b78811.tar.gz";
+        sha256 = "0ij4gw8ypnrdh7klscqczzycyhdnwzdcp83i9pxdbd8y9kmcgz4l";
       }
     ) {}
   ).pkgs;

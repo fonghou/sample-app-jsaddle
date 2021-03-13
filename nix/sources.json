@@ -5,10 +5,10 @@
         "homepage": "https://haskell-miso.org",
         "owner": "dmjio",
         "repo": "miso",
-        "rev": "d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36",
-        "sha256": "0c6sx43znxmf7kcpn8s59x02rr7a4yilj1xfjjw1l5srf9dzxix5",
+        "rev": "db5400ad7801076a8eac1c071a654b7317b78811",
+        "sha256": "0ij4gw8ypnrdh7klscqczzycyhdnwzdcp83i9pxdbd8y9kmcgz4l",
         "type": "tarball",
-        "url": "https://github.com/dmjio/miso/archive/d089cb6b72ba42a79d8be6eeb31eda6a2ad7ef36.tar.gz",
+        "url": "https://github.com/dmjio/miso/archive/db5400ad7801076a8eac1c071a654b7317b78811.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "niv": {
@@ -29,10 +29,10 @@
         "homepage": "",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "6d27bb8d759a16829f8bbf9a07637b7eec01e464",
-        "sha256": "1ih82cn2mf47pzshh3iqmpa4irw5yvgmvglhy1ah34vjisahxgrx",
+        "rev": "7f73e46625f508a793700f5110b86f1a53341d6e",
+        "sha256": "1gijn6vm6hwy7sxdjd27qq0hjqpkq04npwbxybd9694x7h806823",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/6d27bb8d759a16829f8bbf9a07637b7eec01e464.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/7f73e46625f508a793700f5110b86f1a53341d6e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "product-profunctors": {
@@ -65,10 +65,10 @@
         "homepage": "https://kowainik.github.io/projects/validation-selective",
         "owner": "kowainik",
         "repo": "validation-selective",
-        "rev": "016378ba9bd8e459bd6599e58dfbdd395017d58d",
-        "sha256": "1mb74aw287cmwnz91m36c9fz89p5gf4ks9qw6g658jl3nfn326g1",
+        "rev": "435acb53b5cf0c2dbef1f09d8f689a068c330b8b",
+        "sha256": "1fq80vw7m8cdn1ihvijgq2pajwaq9sll0ff9n3m9p99aqvn9wzbr",
         "type": "tarball",
-        "url": "https://github.com/kowainik/validation-selective/archive/016378ba9bd8e459bd6599e58dfbdd395017d58d.tar.gz",
+        "url": "https://github.com/kowainik/validation-selective/archive/435acb53b5cf0c2dbef1f09d8f689a068c330b8b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

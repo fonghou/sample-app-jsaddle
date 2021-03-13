@@ -47,5 +47,15 @@ executable app
      , warp
      , websockets
   ghc-options:
-    -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -Wno-name-shadowing -Wno-unused-top-binds -fhide-source-paths
+    -Wall
+    -Wcompat
+    -Widentities
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wpartial-fields
+    -Wredundant-constraints
+    -Wno-name-shadowing
+    -Wno-unused-imports
+    -Wno-unused-top-binds
+    -fhide-source-paths
   default-language: Haskell2010
